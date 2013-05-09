@@ -112,53 +112,36 @@ class FindTextAtURL():
         
         sys.exit(app.exec_())
     
+    # get content from URL
     def getContentURL(self):
         
         self.addLineRegexIntoXMLFile()
         
         stringURL = str( self.textURL.toPlainText() ) # get string from textURL
-        
         # check if textURL is empty 
         if stringURL == "":
             return False
         
-        self.listURL = string.split(stringURL,  "\n" ) # change stringURL into listURL,separated by new line
+        listURL = stringURL.split("\n")             # change from string to list
+        print "count : " , len(listURL) , " urls"
         
-        self.list_result = [] # all result as list
+        resultlist = [] # list of result
         
-        # loop and open all URL in listURL
-        # find the regex and add it into 
-        for url in self.listURL:
+        for url in listURL:
             
+            open = urllib2.urlopen(url) # open
+            read = open.read()          # read
+            open.close()                # close
             
-            try:
-                open = urllib2.urlopen(url) # open
-                read = open.read()          # read
-                self.list_result.append( self.getTextByRegex(read) )   # find the regex
-                close = open.close()        # close
-            except:
-                print "Error"
+            # get line regex
+            # find add regex from read url
+            # remove duplicates in list result 
+            resultlist += ( set( re.findall( str( self.line_regex.text() ) , read) ) )
             
-        #########
-        # set text into result box
-        result_text = "\n".join(self.list_result) # change list_result into result_text
+        # join the list by new line
+        # set text result 
+        self.result.setText("\n".join(resultlist))
         
-        self.result.setText(result_text) # set result text in result box
-        
-        
-        
-    def getTextByRegex(self , theCodeHTML):
-        
-        # Find all lineRegex in codeHTML by (re.findall)
-        # remove all duplicate items by (set)
-        list = set( re.findall(str( self.line_regex.text() ), theCodeHTML) ) 
-        
-        # change from type(set) into list
-        list_result = "" # the result list
-        for item in list:
-            list_result  = item
-        
-        return list_result
     
     ###################################
     # add content line regex into combobox history
